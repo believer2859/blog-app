@@ -71,7 +71,7 @@ export default function Header() {
               Sign In
             </Button>
           </Link>
-        )};
+        )}
           
           <Navbar.Toggle />
         </div>
