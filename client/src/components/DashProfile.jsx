@@ -8,9 +8,10 @@ import 'react-circular-progressbar/dist/styles.css';
 import { updateStart,updateSuccess,updateFailure,deleteUserStart,deleteUserSuccess,deleteUserFailure,signoutSuccess } from '../redux/user/userSlice';
 import { useDispatch } from 'react-redux';
 import { HiOutlineExclamationCircle } from 'react-icons/hi';
+import { Link } from 'react-router-dom';
 
 export default function DashProfile() {
-  const { currentUser,error } = useSelector(state => state.user); 
+  const { currentUser,error,loading } = useSelector(state => state.user); 
   const [imageFile, setImageFile] = useState(null);
   const [imageFileUrl, setImageFileUrl] = useState(null);
   const [formData, setFormData] = useState({});
@@ -68,9 +69,9 @@ export default function DashProfile() {
           setImageFileUrl(downloadURL);
           setFormData({ ...formData, profilePicture: downloadURL });
           setImageFileUploading(false);
-        }) 
+        });
       }
-    )
+    );
   };
 
   const handleChange = (e) => {
@@ -84,7 +85,7 @@ export default function DashProfile() {
     if (Object.keys(formData).length === 0) {
       setUpdateUserError("No changes made");
       return;
-    } 
+    }
     if (imageFileUploading) {
       setUpdateUserError("Please wait for image to upload before submitting form");
       return;
@@ -99,19 +100,19 @@ export default function DashProfile() {
         body: JSON.stringify(formData),
       });
       const data = await res.json();
-      if(!res.ok) {
+      if (!res.ok) {
         dispatch(updateFailure(data.message));
         setUpdateUserError(data.message);
-      } else { 
+      } else {
         dispatch(updateSuccess(data));
         setUpdateUserSuccess("User profile updated successfully!");
       }
     }
     catch (error) {
       dispatch(updateFailure(error.message));
-      setUpdateUserError(error.message);  
+      setUpdateUserError(error.message);
     }
-  }
+  };
 
   const handleDeleteUser = async () => {
     setShowModal(false);
@@ -183,9 +184,20 @@ export default function DashProfile() {
         <TextInput type='text' id='username' placeholder='username' defaultValue={currentUser.username} onChange={handleChange} />
         <TextInput type='email' id='email' placeholder='email' defaultValue={currentUser.email} onChange={handleChange} />
         <TextInput type='password' id='password' placeholder='password' onChange={handleChange} />
-        <Button type='submit' gradientDuoTone='purpleToBlue' outline>
+        
+        <Button type='submit' gradientDuoTone='purpleToBlue' outline disabled={imageFileUploading}>
           Update
         </Button>
+        {
+          currentUser.isAdmin && (
+            <Link to={'/create-post'} >
+            <Button gradientDuoTone='purpleToPink' type='button' className='w-full' >
+              Create a Post
+            </Button>
+            </Link>
+            
+          )
+        }
         <div className="text-red-500 flex justify-between mt-5">
           <span onClick={()=>setShowModal(true) } className='cursor-pointer'>
             Delete Account
